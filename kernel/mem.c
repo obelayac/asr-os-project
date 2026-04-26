@@ -1,50 +1,48 @@
 #include <n7OS/mem.h>
+#include <stdio.h>
 
-/**
- * @brief Marque la page allouée
- * 
- * Lorsque la page a été choisie, cette fonction permet de la marquer allouée
- * 
- * @param addr Adresse de la page à allouer
- */
+// Nombre total de pages : 16 Mo / 4 Ko = 4096 pages.
+#define NB_PAGES ((LAST_MEMORY_INDEX + 1) / PAGE_SIZE)
+
+// Taille du bitmap en mots de 32 bits : 4096 / 32 = 128.
+#define BITMAP_SIZE (NB_PAGES / 32)
+
+// 1 bit par page. Bit à 1 = allouée, 0 = libre.
+static uint32_t page_bitmap[BITMAP_SIZE];
+
 void setPage(uint32_t addr) {
-
+    uint32_t page = addr / PAGE_SIZE;
+    page_bitmap[page / 32] |= (1u << (page % 32));
 }
 
-/**
- * @brief Désalloue la page
- * 
- * Libère la page allouée.
- * 
- * @param addr Adresse de la page à libérer
- */
 void clearPage(uint32_t addr) {
-
+    uint32_t page = addr / PAGE_SIZE;
+    page_bitmap[page / 32] &= ~(1u << (page % 32));
 }
 
-/**
- * @brief Fourni la première page libre de la mémoire physique tout en l'allouant
- * 
- * @return uint32_t Adresse de la page sélectionnée
- */
 uint32_t findfreePage() {
-    uint32_t adresse= 0x0;
-
-    return adresse;
+    for (uint32_t page = 0; page < NB_PAGES; page++) {
+        if ((page_bitmap[page / 32] & (1u << (page % 32))) == 0) {
+            page_bitmap[page / 32] |= (1u << (page % 32));
+            return page * PAGE_SIZE;
+        }
+    }
+    return 0;  // plus de page libre
 }
 
-/**
- * @brief Initialise le gestionnaire de mémoire physique
- * 
- */
 void init_mem() {
-
+    for (int i = 0; i < BITMAP_SIZE; i++) {
+        page_bitmap[i] = 0;
+    }
 }
 
-/**
- * @brief Affiche l'état de la mémoire physique
- * 
- */
 void print_mem() {
-    
+    uint32_t used = 0;
+    for (uint32_t p = 0; p < NB_PAGES; p++) {
+        if (page_bitmap[p / 32] & (1u << (p % 32))) {
+            used++;
+        }
+    }
+    printf("Memoire physique : %d pages totales, %d utilisees, %d libres\n",
+           (int) NB_PAGES, (int) used, (int) (NB_PAGES - used));
 }

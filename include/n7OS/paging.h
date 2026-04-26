@@ -7,43 +7,43 @@
 
 #include <inttypes.h>
 
-/**
- * @brief Description d'une ligne de la table de page
- * 
- */
+// Description d'une ligne de table de page (cf. paper, slide 5).
 typedef struct {
-    // a completer
+    uint32_t present    : 1;   // P
+    uint32_t rw         : 1;   // W : 1 = lecture/ecriture, 0 = lecture seule
+    uint32_t user       : 1;   // U : 1 = utilisateur, 0 = noyau
+    uint32_t reserved1  : 2;   // RSVD
+    uint32_t accessed   : 1;   // A
+    uint32_t dirty      : 1;   // D
+    uint32_t reserved2  : 2;   // RSVD
+    uint32_t avail      : 3;   // AVAIL
+    uint32_t frame_addr : 20;  // adresse physique de la page (20 bits forts)
 } page_table_entry_t;
 
-/**
- * @brief Une entrée dans la table de page peut être manipulée en utilisant
- *        la structure page_table_entry_t ou directement la valeur
- */
+// Une entrée peut être manipulée par champ ou par valeur brute.
 typedef union {
     page_table_entry_t page_entry;
     uint32_t value;
-} PTE; // PTE = Page Table Entry 
+} PTE;
 
-/**
- * @brief Une table de page (PageTable) est un tableau de descripteurs de page
- * 
- */
-typedef PTE * PageTable;
+// Une table de page = tableau de descripteurs de page.
+typedef PTE *PageTable;
 
-/**
- * @brief Cette fonction initialise le répertoire de page, alloue les pages de table du noyau
- *        et active la pagination
- * 
- */
+// 1024 entrées par table et par répertoire.
+#define PAGE_DIRECTORY_ENTRIES 1024
+#define PAGE_TABLE_ENTRIES     1024
+
+// Une entrée de répertoire de pages (mêmes champs qu'une PTE,
+// le frame_addr pointe sur une PageTable au lieu d'une page de
+// données).
+typedef PTE PDE;
+
+// Description d'un répertoire de pages.
+typedef struct {
+    PDE entries[PAGE_DIRECTORY_ENTRIES];
+} PageDirectory;
+
 void initialise_paging();
-
-/**
- * @brief Cette fonction alloue une page de la mémoire physique à une adresse de la mémoire virtuelle
- * 
- * @param address       Adresse de la mémoire virtuelle à mapper
- * @param is_writeable  Si is_writeable == 1, la page est accessible en écriture
- * @param is_kernel     Si is_kernel == 1, la page ne peut être accédée que par le noyau
- * @return PageTable    La table de page modifiée
- */
 PageTable alloc_page_entry(uint32_t address, int is_writeable, int is_kernel);
+
 #endif

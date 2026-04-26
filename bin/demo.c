@@ -4,6 +4,7 @@
 #include <n7OS/process.h>
 #include <n7OS/keyboard.h>
 #include <n7OS/cpu.h>
+#include <n7OS/mem.h>
 
 #define DEMO_LINE_MAX 16
 
@@ -153,6 +154,32 @@ static void demo_read(void) {
     printf("Vous avez tape %d caracteres : \"%s\"\n", n, buf);
 }
 
+
+// --- Etape 8 : Pagination. Vérifie que CR0.PG est à 1 et affiche
+// l'état du bitmap mémoire.
+static void demo_paging(void) {
+    printf("\n--- Etape 8 : Pagination ---\n");
+
+    // Lit CR0 et regarde le bit 31 (PG = paging enabled).
+    uint32_t cr0;
+    __asm__ __volatile__("mov %%cr0, %0" : "=r" (cr0));
+
+    if (cr0 & 0x80000000) {
+        printf("CR0.PG = 1 -> pagination active.\n");
+    } else {
+        printf("CR0.PG = 0 -> pagination inactive (anormal).\n");
+    }
+
+    // Lit CR3 (adresse du répertoire de pages).
+    uint32_t cr3;
+    __asm__ __volatile__("mov %%cr3, %0" : "=r" (cr3));
+    printf("CR3 (repertoire de pages) = 0x%x\n", cr3);
+
+    // Etat du bitmap mémoire physique.
+    print_mem();
+}
+
+
 static void print_menu(void) {
     printf("\n=== Demo des etapes du projet n7OS ===\n");
     printf("  1. Console (caracteres de controle)\n");
@@ -162,6 +189,7 @@ static void print_menu(void) {
     printf("  5. Processus et ordonnancement\n");
     printf("  6. Clavier\n");
     printf("  7. Appel systeme read\n");
+    printf("  8. Pagination\n");
     printf("  q. Quitter le mode demo\n");
 }
 
@@ -185,6 +213,7 @@ void demo(void) {
             case '5': demo_process();   break;
             case '6': demo_keyboard();  break;
             case '7': demo_read();      break;
+            case '8': demo_paging();    break;
             case 'q': case 'Q':
                 printf("Sortie du mode demo.\n");
                 return;

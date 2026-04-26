@@ -6,7 +6,10 @@
 #include <n7OS/time.h>
 #include <n7OS/process.h>
 #include <n7OS/keyboard.h>
+#include <n7OS/mem.h>
+#include <n7OS/paging.h>
 #include <stdio.h>
+#include <n7OS/kheap.h>
 
 // Définis dans bin/ (linkés via app.o).
 extern void processus1(void);
@@ -27,6 +30,14 @@ void kernel_start(void)
     // Tables système : GDT, IDT, TSS, PIC. Aucune IT n'est encore
     // active à ce stade.
     setup_base(0);
+
+    // Gestion mémoire : on initialise placement_address à runtime
+    // (l'initialiseur statique est ecrase par le memset du crt0),
+    // puis le bitmap des pages physiques, puis on active la
+    // pagination en identity-mappant les 16 premiers Mo.
+    init_kheap();
+    init_mem();
+    initialise_paging();
 
     // Appels système : enregistrement dans la syscall_table et
     // installation du handler sur IDT[0x80] (DPL=3). A faire avant

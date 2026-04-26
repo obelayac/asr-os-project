@@ -101,7 +101,7 @@ Le répertoire fourni contient :
 
 ## Ce qui a été fait
 
-Toutes les étapes du menu ont été implémentées. Au démarrage, le noyau initialise console, IT, syscalls, timer et clavier, puis lance trois processus : `idle` (pid 0), `processus1` (muet par défaut, activé via la demo) et `shell` (pid 2).
+Toutes les étapes du menu ont été implémentées, plus la pagination. Au démarrage, le noyau initialise console, gestion mémoire, pagination, IT, syscalls, timer et clavier, puis lance trois processus : `idle` (pid 0), `processus1` (muet par défaut, activé via la demo) et `shell` (pid 2).
 
 Une fois `make run` lancé, on tombe sur le prompt `n7OS>` du shell. La commande `demo` ouvre un menu permettant de tester chaque étape individuellement.
 
@@ -110,7 +110,7 @@ Une fois `make run` lancé, on tombe sur le prompt `n7OS>` du shell. La commande
 - **Console** (`kernel/console.c`)
   - Mémoire vidéo VGA en `0xB8000`, curseur géré via les ports `0x3D4` / `0x3D5`.
   - Caractères de contrôle : `\b`, `\t`, `\n`, `\f`, `\r`.
-  - Wrap automatique en bout de ligne et en bout d'écran (retour ligne 0, pas de scrolling).
+  - Wrap automatique en bout de ligne et en bout d'écran (retour ligne 0).
   - À chaque saut de ligne, la nouvelle ligne est effacée pour éviter les résidus du tour précédent.
 
 - **Interruption logicielle** (`kernel/test_irq.c`, `kernel/handler_IT.S`, `kernel/irq.c`)
@@ -140,6 +140,12 @@ Une fois `make run` lancé, on tombe sur le prompt `n7OS>` du shell. La commande
   - `read(buf, len)` lit jusqu'à `len-1` caractères, s'arrête sur Entrée, gère le backspace, écho à l'écran.
   - Shell minimal `n7sh` avec les commandes `help`, `clear`, `time`, `echo X`, `demo`.
 
+- **Pagination** (`kernel/paging.c`, `kernel/mem.c`, `kernel/kheap.c`)
+  - Identity-mapping des 16 premiers Mo : chaque adresse virtuelle pointe sur la même adresse physique. Permet d'activer la pagination sans déplacer le code, les piles ou les structures système déjà en place.
+  - Répertoire de pages + 4 tables de pages alloués via `kmalloc_a`, chargés dans CR3, bit PG de CR0 mis à 1.
+  - Allocateur bitmap pour les pages physiques (`mem.c`) : 1 bit par page, soit 128 mots de 32 bits pour 16 Mo.
+  - `alloc_page_entry()` mappe une nouvelle page physique libre à une adresse virtuelle donnée.
+
 ### La commande `demo`
 
 Tapée depuis le prompt `n7OS>`, elle ouvre un menu numéroté. Chaque entrée déclenche un test ciblé sur la milestone correspondante :
@@ -153,4 +159,5 @@ Tapée depuis le prompt `n7OS>`, elle ouvre un menu numéroté. Chaque entrée d
 | 5 | Processus et ordonnancement | Affiche la table des processus, active processus1 qui imprime `P1 iter N` en parallèle, on tape `q` pour stopper. |
 | 6 | Clavier | Lit 3 caractères et affiche leur code ASCII. |
 | 7 | Appel système read | Lit une phrase entière et la réaffiche, en montrant le nombre de caractères lus. |
+| 8 | Pagination | Affiche l'état des registres CR0 et CR3, et l'occupation du bitmap mémoire physique. |
 | q | Quitter | Retour au prompt `n7OS>`. |
