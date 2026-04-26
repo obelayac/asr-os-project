@@ -1,3 +1,12 @@
+# Projet n7OS
+
+**Nom :** BEL AYACHI Oussama  
+**Promotion :** ENSEEIHT 3SN (projet en dette de la 2e année)
+
+Pour voir ce qui a été fait, comment tester, etc. : [voir la section dédiée](#ce-qui-a-été-fait).
+
+---
+
 # Projet développement d'un mini système d'exploitation pour PC x86
 
 ## Objectifs
