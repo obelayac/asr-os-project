@@ -154,4 +154,3 @@ Tapée depuis le prompt `n7OS>`, elle ouvre un menu numéroté. Chaque entrée d
 | 6 | Clavier | Lit 3 caractères et affiche leur code ASCII. |
 | 7 | Appel système read | Lit une phrase entière et la réaffiche, en montrant le nombre de caractères lus. |
 | q | Quitter | Retour au prompt `n7OS>`. |
-```
