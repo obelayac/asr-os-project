@@ -1,15 +1,13 @@
 #include <stdio.h>
 #include <string.h>
-#include <n7OS/keyboard.h>
 #include <ctype.h>
 
 #define STRSIZE 255
 
 char getchar(void) {
-    char tmpchar;
-
-    while ((tmpchar = kgetch()) == -1);
-    return tmpchar;
+    char buf[2];
+    read(buf, 2);
+    return buf[0];
 }
 
 char *gets(char *s) {

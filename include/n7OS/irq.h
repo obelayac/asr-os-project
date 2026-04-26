@@ -27,4 +27,14 @@ typedef struct {
 
 void init_irq_entry(int irq_num, uint32_t addr);
 
+// Comme init_irq_entry mais en gate noyau (DPL=0).
+void init_idt_entry(int num_line, uint32_t handler);
+
+// Traitant C appelé depuis handler_IT.
+void handler_en_C(void);
+
+// Mise en place du test d'IT logicielle (vecteur 50). Définie
+// dans test_irq.c.
+void init_irq(void);
+
 #endif

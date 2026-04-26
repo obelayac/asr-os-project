@@ -1,0 +1,21 @@
+# Compiled object files
+*.o
+
+# Final compiled kernel/binary
+kernel.bin
+
+# Build-generated files
+build/build_env.mak
+
+# Debug / temporary files
+*.out
+*.elf
+*.map
+*.log
+
+# Editor / OS files
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

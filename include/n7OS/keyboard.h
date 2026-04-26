@@ -287,10 +287,17 @@ static uint16_t scancode_map_shift[] = {
 	0, 0, // F11, F12
 }; 
 
-// Keyboard initialization function
+// Initialisation du clavier : installe le traitant sur IDT[0x21]
+// et démasque l'IRQ 1.
 void init_keyboard();
 
-// Keyboard get character function
+// Lit un caractère du buffer clavier. Bloque tant que vide.
 char kgetch();
+
+// Traitant C appelé depuis handler_keyboard.S à chaque IRQ 1.
+void keyboard_handler_C(void);
+
+// Version non bloquante : 1 si au moins un caractère en attente.
+int kbd_has_input(void);
 
 #endif
